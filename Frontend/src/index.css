@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.font-mono { font-family: 'IBM Plex Mono', monospace; }
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.topo-line { stroke-dasharray: 500; stroke-dashoffset: 500; transition: opacity 0.3s ease; }
+.topo-line.drawn { animation: draw 0.9s ease forwards; }

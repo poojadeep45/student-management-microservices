@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Microservices</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --bg:#0B1220;
+          --surface:#131B2E;
+          --surface-2:#0F1930;
+          --line:#232E48;
+          --mint:#5EEAD4;
+          --amber:#F0B429;
+          --text:#E7ECF3;
+          --muted:#8892A6;
+        }
+        *{box-sizing:border-box; margin:0; padding:0;}
+        html{scroll-behavior:smooth;}
+        body{
+          background:var(--bg);
+          color:var(--text);
+          font-family:'Inter', sans-serif;
+          line-height:1.6;
+          -webkit-font-smoothing:antialiased;
+        }
+        h1,h2,h3{
+          font-family:'Space Grotesk', sans-serif;
+          font-weight:600;
+          letter-spacing:-0.01em;
+        }
+        .mono{ font-family:'IBM Plex Mono', monospace; }
+        a{ color:inherit; }
+
+        .wrap{
+          max-width:920px;
+          margin:0 auto;
+          padding:0 24px;
+        }
+
+        /* ---------- Nav ---------- */
+        nav{
+          position:sticky; top:0; z-index:20;
+          background:rgba(11,18,32,0.85);
+          backdrop-filter:blur(8px);
+          border-bottom:1px solid var(--line);
+        }
+        nav .wrap{
+          display:flex; align-items:center; justify-content:space-between;
+          padding:16px 24px;
+        }
+        .brand{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:1.05rem; }
+        .brand span{ color:var(--mint); }
+        nav .links{ display:flex; gap:28px; font-size:0.9rem; color:var(--muted); }
+        nav .links a:hover{ color:var(--text); }
+
+        /* ---------- Hero ---------- */
+        header.hero{
+          padding:88px 0 64px;
+          border-bottom:1px solid var(--line);
+        }
+        .eyebrow{
+          font-family:'IBM Plex Mono', monospace;
+          font-size:0.82rem;
+          color:var(--mint);
+          margin-bottom:18px;
+        }
+        h1.title{
+          font-size:clamp(2rem, 4.4vw, 3.1rem);
+          max-width:14ch;
+          line-height:1.08;
+          margin-bottom:20px;
+        }
+        .hero p.lede{
+          max-width:52ch;
+          color:var(--muted);
+          font-size:1.05rem;
+          margin-bottom:36px;
+        }
+        .hero-links{ display:flex; gap:14px; flex-wrap:wrap; }
+        .btn{
+          display:inline-flex; align-items:center; gap:8px;
+          padding:11px 20px;
+          border-radius:6px;
+          font-size:0.92rem;
+          font-weight:500;
+          text-decoration:none;
+          transition:transform 0.15s ease, background 0.15s ease;
+        }
+        .btn-primary{ background:var(--mint); color:#08131B; }
+        .btn-primary:hover{ transform:translateY(-1px); background:#7FF0DE; }
+        .btn-ghost{ border:1px solid var(--line); color:var(--text); }
+        .btn-ghost:hover{ border-color:var(--mint); }
+
+        /* ---------- Diagram ---------- */
+        .diagram-shell{
+          margin-top:56px;
+          background:var(--surface);
+          border:1px solid var(--line);
+          border-radius:10px;
+          padding:32px 20px;
+        }
+        #topo{ width:100%; height:auto; display:block; }
+        .node-box{ fill:var(--surface-2); stroke:var(--line); stroke-width:1; }
+        .node-box.hi{ stroke:var(--mint); }
+        .node-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; fill:var(--text); }
+        .node-sub{ font-family:'Inter', sans-serif; font-size:10.5px; fill:var(--muted); }
+        .topo-line{
+          stroke:var(--mint);
+          stroke-width:1.4;
+          fill:none;
+          stroke-dasharray:400;
+          stroke-dashoffset:400;
+          animation:draw 1.1s ease forwards;
+        }
+        @keyframes draw{ to{ stroke-dashoffset:0; } }
+        .topo-line.d1{ animation-delay:0.15s; }
+        .topo-line.d2{ animation-delay:0.35s; }
+        .topo-line.d3{ animation-delay:0.55s; }
+        .topo-line.d4{ animation-delay:0.75s; }
+
+        /* ---------- Sections ---------- */
+        section{ padding:64px 0; border-bottom:1px solid var(--line); }
+        section h2{
+          font-size:1.5rem;
+          margin-bottom:8px;
+        }
+        section .section-desc{
+          color:var(--muted);
+          max-width:56ch;
+          margin-bottom:40px;
+        }
+
+        /* Flow steps */
+        .flow{ display:flex; flex-direction:column; gap:0; }
+        .flow-step{
+          display:grid;
+          grid-template-columns:44px 1fr;
+          gap:18px;
+          padding:20px 0;
+          border-top:1px solid var(--line);
+        }
+        .flow-step:first-child{ border-top:none; }
+        .flow-num{
+          font-family:'IBM Plex Mono', monospace;
+          color:var(--mint);
+          font-size:0.85rem;
+          padding-top:2px;
+        }
+        .flow-step h3{
+          font-size:1rem;
+          font-weight:600;
+          margin-bottom:4px;
+        }
+        .flow-step p{ color:var(--muted); font-size:0.92rem; max-width:58ch; }
+        .flow-step code{
+          font-family:'IBM Plex Mono', monospace;
+          background:var(--surface);
+          border:1px solid var(--line);
+          padding:1px 6px;
+          border-radius:4px;
+          font-size:0.85em;
+          color:var(--mint);
+        }
+
+        /* Stack grid */
+        .stack-grid{
+          display:grid;
+          grid-template-columns:repeat(2, 1fr);
+          gap:1px;
+          background:var(--line);
+          border:1px solid var(--line);
+          border-radius:8px;
+          overflow:hidden;
+        }
+        .stack-item{
+          background:var(--surface);
+          padding:20px 22px;
+        }
+        .stack-item .k{
+          font-family:'IBM Plex Mono', monospace;
+          font-size:0.8rem;
+          color:var(--mint);
+          display:block;
+          margin-bottom:6px;
+        }
+        .stack-item .v{ color:var(--muted); font-size:0.88rem; }
+
+        /* Debugging log */
+        .debug-item{
+          padding:22px 0;
+          border-top:1px solid var(--line);
+        }
+        .debug-item:first-child{ border-top:none; }
+        .debug-item h3{
+          font-size:0.98rem;
+          font-weight:600;
+          margin-bottom:6px;
+          display:flex;
+          align-items:baseline;
+          gap:10px;
+        }
+        .debug-item h3 .tag{
+          font-family:'IBM Plex Mono', monospace;
+          font-size:0.72rem;
+          color:var(--amber);
+          font-weight:400;
+        }
+        .debug-item p{ color:var(--muted); font-size:0.92rem; max-width:62ch; }
+
+        footer{
+          padding:48px 0 64px;
+          color:var(--muted);
+          font-size:0.88rem;
+          display:flex;
+          justify-content:space-between;
+          flex-wrap:wrap;
+          gap:16px;
+        }
+        footer a{ color:var(--text); text-decoration:none; border-bottom:1px solid var(--line); }
+        footer a:hover{ border-color:var(--mint); }
+
+        @media (max-width:640px){
+          .stack-grid{ grid-template-columns:1fr; }
+          .flow-step{ grid-template-columns:32px 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce){
+          .topo-line{ animation:none; stroke-dashoffset:0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="wrap">
+        <div class="brand">student<span>·</span>management</div>
+        <div class="links">
+            <a href="#flow">How it works</a>
+            <a href="#stack">Stack</a>
+            <a href="#debugging">Debugging</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="wrap">
+        <div class="eyebrow mono">4 services · service discovery · single gateway</div>
+        <h1 class="title">A monolith, split into a working microservices system</h1>
+        <p class="lede">Student record management, rebuilt as four independently deployable services — with real service discovery, cross-service validation over the network, and one public entry point. Includes JWT and OAuth 2.0 authentication built from scratch.</p>
+        <div class="hero-links">
+            <a class="btn btn-primary" href="#">View on GitHub</a>
+            <a class="btn btn-ghost" href="#flow">See the request flow</a>
+        </div>
+
+        <div class="diagram-shell">
+            <svg id="topo" viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg">
+                <!-- connecting lines -->
+                <path class="topo-line d1" d="M430,70 L430,110" />
+                <path class="topo-line d2" d="M370,150 L180,150 L180,190" />
+                <path class="topo-line d3" d="M430,150 L430,190" />
+                <path class="topo-line d4" d="M490,150 L680,150 L680,190" />
+
+                <!-- Eureka -->
+                <rect class="node-box hi" x="350" y="20" width="160" height="50" rx="6"/>
+                <text class="node-label" x="430" y="42" text-anchor="middle">eureka-server</text>
+                <text class="node-sub" x="430" y="58" text-anchor="middle">registry · :8761</text>
+
+                <!-- Gateway -->
+                <rect class="node-box" x="350" y="110" width="160" height="50" rx="6"/>
+                <text class="node-label" x="430" y="132" text-anchor="middle">api-gateway</text>
+                <text class="node-sub" x="430" y="148" text-anchor="middle">public entry · :8080</text>
+
+                <!-- Student -->
+                <rect class="node-box" x="100" y="190" width="160" height="50" rx="6"/>
+                <text class="node-label" x="180" y="212" text-anchor="middle">student-service</text>
+                <text class="node-sub" x="180" y="228" text-anchor="middle">auth · CRUD · :8081</text>
+
+                <!-- Course -->
+                <rect class="node-box" x="600" y="190" width="160" height="50" rx="6"/>
+                <text class="node-label" x="680" y="212" text-anchor="middle">course-service</text>
+                <text class="node-sub" x="680" y="228" text-anchor="middle">enrollment · :8082</text>
+            </svg>
+        </div>
+    </div>
+</header>
+
+<section id="flow">
+    <div class="wrap">
+        <h2>What happens on one request</h2>
+        <p class="section-desc">Enrolling a student in a course is the clearest example of the whole system working together — a request that touches every service.</p>
+
+        <div class="flow">
+            <div class="flow-step">
+                <div class="flow-num">01</div>
+                <div>
+                    <h3>Client calls the gateway</h3>
+                    <p><code>POST /courses/enroll</code> hits the single public port, <code>:8080</code>. Nothing outside the system ever talks to a service directly.</p>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">02</div>
+                <div>
+                    <h3>Gateway routes by path</h3>
+                    <p>The path predicate matches <code>/courses/**</code> and resolves <code>course-service</code>'s current address through Eureka — no hardcoded host or port.</p>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">03</div>
+                <div>
+                    <h3>Course Service calls Student Service</h3>
+                    <p>Before saving anything, it asks <code>student-service</code> — over the network, via OpenFeign — whether the given student ID actually exists.</p>
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">04</div>
+                <div>
+                    <h3>Found → saved. Not found → rejected.</h3>
+                    <p>A real student returns <code>201 Created</code>. An invalid ID returns <code>400</code> with a clear message — no bad data ever reaches the database.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="stack">
+    <div class="wrap">
+        <h2>Stack</h2>
+        <p class="section-desc">Every piece chosen to stay consistent — no reactive code, no mixed Boot versions once things were sorted out.</p>
+
+        <div class="stack-grid">
+            <div class="stack-item">
+                <span class="k">runtime</span>
+                <span class="v">Java 17 · Spring Boot 3.5.13 · Spring Cloud 2025.0.0</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">discovery</span>
+                <span class="v">Netflix Eureka</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">inter-service calls</span>
+                <span class="v">OpenFeign, resolved through Eureka</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">gateway</span>
+                <span class="v">Spring Cloud Gateway (servlet / MVC)</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">auth</span>
+                <span class="v">Custom JWT + full OAuth 2.0 / OIDC, built from scratch</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">persistence</span>
+                <span class="v">Spring Data JPA · MySQL, one database per service</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">docs</span>
+                <span class="v">springdoc-openapi / Swagger UI</span>
+            </div>
+            <div class="stack-item">
+                <span class="k">deploy</span>
+                <span class="v">Docker Compose (full stack) · GitHub Actions → Railway</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="debugging">
+    <div class="wrap">
+        <h2>What actually broke</h2>
+        <p class="section-desc">The parts of this build worth remembering weren't the tutorials — they were the failures that had nothing to do with the code being wrong.</p>
+
+        <div class="debug-list">
+            <div class="debug-item">
+                <h3>Spring Cloud version drift <span class="tag">3 separate services</span></h3>
+                <p>Spring Initializr kept defaulting to a newer Spring Boot version than requested, which pulled in a Spring Cloud release built for a different Boot major version — surfacing as an unrelated-looking <code class="mono">ClassNotFoundException</code> deep in Spring internals, not a clear version error.</p>
+            </div>
+            <div class="debug-item">
+                <h3>A cast that compiled, then crashed <span class="tag">runtime only</span></h3>
+                <p><code class="mono">(Course) Map.of(...)</code> satisfied the compiler for a method returning <code class="mono">ResponseEntity&lt;Course&gt;</code>, then threw a <code class="mono">ClassCastException</code> the moment an error branch actually executed.</p>
+            </div>
+            <div class="debug-item">
+                <h3>A working endpoint that quietly moved <span class="tag">path drift</span></h3>
+                <p>A cross-service call kept failing with a generic 500. The real cause: an earlier API cleanup had renamed the route it depended on — traced by testing the target service directly, bypassing the service-to-service call entirely.</p>
+            </div>
+            <div class="debug-item">
+                <h3>A credential that shouldn't have shipped <span class="tag">security</span></h3>
+                <p>A real database password was sitting in a public repo's config file. Fixed properly: rotated the password, moved secrets to environment variables, and excluded <code class="mono">.env</code> from version control going forward.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; width:100%;">
+        <span>Built as a hands-on exercise in splitting a real system, not just wiring the tools together.</span>
+        <a href="#">github.com/poojadeep45</a>
+    </div>
+</footer>
+
+</body>
+</html>
