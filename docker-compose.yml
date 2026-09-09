@@ -1,0 +1,97 @@
+services:
+
+  # ── Databases ─────────────────────────────────────────────
+  student-mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: studentdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - student-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  course-mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: coursedb
+    ports:
+      - "3308:3306"
+    volumes:
+      - course-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Service Registry ──────────────────────────────────────
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+
+  # ── Business Services ─────────────────────────────────────
+  student-service:
+    build: ./student-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_APPLICATION_NAME: student-service
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:mysql://student-mysql:3306/studentdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      student-mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  course-service:
+    build: ./course-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_APPLICATION_NAME: course-service
+      SERVER_PORT: 8082
+      SPRING_DATASOURCE_URL: jdbc:mysql://course-mysql:3306/coursedb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      course-mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      student-service:
+        condition: service_started
+
+  # ── Public Entry Point ────────────────────────────────────
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: api-gateway
+      SERVER_PORT: 8080
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka
+    depends_on:
+      eureka-server:
+        condition: service_started
+      student-service:
+        condition: service_started
+      course-service:
+        condition: service_started
+
+volumes:
+  student-mysql-data:
+  course-mysql-data:
