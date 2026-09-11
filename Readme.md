@@ -212,6 +212,20 @@ student-management-microservices/
 
 ---
 
+## Showcase
+
+An interactive project showcase lives alongside the backend services:
+
+- **`frontend/`** — a React + Vite app with a live, clickable architecture diagram that traces the enrollment request across all four services, plus the real debugging stories behind the build. Run locally with:
+  ```bash
+  cd frontend
+  npm install
+  npm run dev
+  ```
+- **`docs/index.html`** — a static, no-build version of the same page, served via GitHub Pages. Enable it under repo **Settings → Pages**, source set to branch `main`, folder `/docs`.
+
+---
+
 ## Author
 
 Built by Pooja — Final-year BSCS student, University of Karachi (DCS-UBIT), specializing in backend development and AI/ML.
